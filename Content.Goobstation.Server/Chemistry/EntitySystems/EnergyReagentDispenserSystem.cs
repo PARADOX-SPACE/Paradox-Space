@@ -255,7 +255,7 @@ namespace Content.Goobstation.Server.Chemistry.EntitySystems
             args.Handled = true;
             ent.Comp.Emagged = true;
             UpdateUiState(ent);
-                }
+        }
         // Orion-End
     }
 }
