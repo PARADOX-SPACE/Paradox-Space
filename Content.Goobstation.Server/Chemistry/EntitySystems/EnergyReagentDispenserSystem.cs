@@ -44,8 +44,6 @@ using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Containers.ItemSlots;
-using Content.Goobstation.Maths.FixedPoint;
-using Content.Shared.Nutrition.EntitySystems;
 using Content.Shared.Power;
 using JetBrains.Annotations;
 using Robust.Server.Audio;
@@ -53,11 +51,9 @@ using Robust.Server.GameObjects;
 using Robust.Shared.Audio;
 using Robust.Shared.Containers;
 using Robust.Shared.Prototypes;
-using Content.Shared.Labels.Components;
 using Content.Server.Power.Components;
-using Robust.Shared.Player;
-using Robust.Shared.Utility;
 using Content.Server.Power.EntitySystems;
+using Content.Shared.Emag.Systems;
 using Content.Shared.Power.Components;
 
 namespace Content.Goobstation.Server.Chemistry.EntitySystems
@@ -92,6 +88,8 @@ namespace Content.Goobstation.Server.Chemistry.EntitySystems
             SubscribeLocalEvent<EnergyReagentDispenserComponent, PowerChangedEvent>(OnPowerChanged);
 
             SubscribeLocalEvent<EnergyReagentDispenserComponent, MapInitEvent>(OnMapInit, before: [typeof(ItemSlotsSystem)]);
+
+            SubscribeLocalEvent<EnergyReagentDispenserComponent, GotEmaggedEvent>(OnEmaged); // Orion
         }
 
         private void SubscribeUpdateUiState<T>(Entity<EnergyReagentDispenserComponent> ent, ref T ev) => UpdateUiState(ent);
@@ -242,5 +240,22 @@ namespace Content.Goobstation.Server.Chemistry.EntitySystems
         }
         private void OnMapInit(Entity<EnergyReagentDispenserComponent> entity, ref MapInitEvent args) =>
             _itemSlotsSystem.AddItemSlot(entity.Owner, SharedEnergyReagentDispenser.OutputSlotName, entity.Comp.EnergyBeakerSlot);
+
+        // Orion-Start
+        private void OnEmaged(Entity<EnergyReagentDispenserComponent> ent, ref GotEmaggedEvent args)
+        {
+            if (ent.Comp.ReagentsEmagged == null || ent.Comp.Emagged)
+                return;
+
+            foreach (var (name, price) in ent.Comp.ReagentsEmagged)
+            {
+                ent.Comp.Reagents.Add(name, price);
+            }
+
+            args.Handled = true;
+            ent.Comp.Emagged = true;
+            UpdateUiState(ent);
+                }
+        // Orion-End
     }
 }

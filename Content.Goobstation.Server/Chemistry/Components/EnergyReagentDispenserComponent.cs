@@ -58,12 +58,10 @@
 //
 // SPDX-License-Identifier: MIT
 
-using Content.Shared.Whitelist;
 using Content.Shared.Containers.ItemSlots;
 using Content.Goobstation.Server.Chemistry.EntitySystems;
 using Content.Goobstation.Shared.Chemistry;
 using Robust.Shared.Audio;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
 namespace Content.Goobstation.Server.Chemistry.Components
 {
@@ -88,5 +86,13 @@ namespace Content.Goobstation.Server.Chemistry.Components
 
         [DataField]
         public Dictionary<string, float> Reagents = [];
+
+        // Orion-Start
+        [DataField]
+        public Dictionary<string, float>? ReagentsEmagged = [];
+
+        [DataField]
+        public bool Emagged;
+        // Orion-End
     }
 }

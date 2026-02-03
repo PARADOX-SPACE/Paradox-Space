@@ -115,3 +115,14 @@
       Sodium: 5
       Sugar: 5
       Sulfur: 5
+    # Orion-Start
+    reagentsEmagged:
+      Puncturase: 20
+      Pyrazine: 10
+      TranexamicAcid: 5
+      Epinephrine: 5
+      Leporazine: 10
+      Cryoxadone: 5
+      Ephedrine: 20
+      Morphine: 3
+    # Orion-End
