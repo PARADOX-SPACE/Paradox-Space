@@ -12,12 +12,6 @@
   - ParadoxRule5
   - ParadoxRule6
   - ParadoxRule7
-  - ParadoxPunishmentTypes
-
-- type: guideEntry
-  id: ParadoxPunishmentTypes
-  name: guide-entry-server-rules-punishment
-  text: "/ServerInfo/_Paradox/Guidebook/ServerRules/PunishmentTypes.xml"
 
 - type: guideEntry
   id: ParadoxRule0
