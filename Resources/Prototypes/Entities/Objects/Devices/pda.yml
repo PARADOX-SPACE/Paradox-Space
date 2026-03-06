@@ -203,6 +203,8 @@
       map: [ "enum.PdaVisualLayers.IdLight" ]
       shader: "unshaded"
       visible: false
+    - state: "insert_overlay" # Goob
+      map: [ "enum.PdaVisualLayers.Pen" ]
   - type: Icon
     sprite: _Orion/Objects/Devices/pda.rsi # Orion-Edit
     state: icon # Orion-Edit
@@ -332,6 +334,8 @@
 #      map: [ "enum.PdaVisualLayers.IdLight" ]
 #      shader: "unshaded"
 #      visible: false
+#    - state: "insert_overlay" # Goob
+#      map: [ "enum.PdaVisualLayers.Pen" ]
 
 - type: entity
   parent: BasePDA

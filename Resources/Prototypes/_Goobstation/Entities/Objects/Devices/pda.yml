@@ -480,5 +480,7 @@
       shader: unshaded
       visible: false
   # Orion-End
+    - state: "insert_overlay"
+      map: [ "enum.PdaVisualLayers.Pen" ]
   - type: Pda
     id: OuterCommandIDCard

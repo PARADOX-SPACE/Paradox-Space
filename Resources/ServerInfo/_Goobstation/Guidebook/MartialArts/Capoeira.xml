@@ -41,7 +41,8 @@
     <GuideEntityEmbed Entity="GuidebookHarm" Caption=""/>
   </Box>
 
-  Сбивает с ног и отталкивает противника от пользователя. Не заставляет ронять удерживаемые предметы.
+  Disarms the opponent, pushes them away, as well as knocking them down causing them to be more vulnerable to unarmed melee attacks while they're down.
+  Only works on standing opponents.
 
   ### Круговой удар ногой
 
