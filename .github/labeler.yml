@@ -1,30 +1,64 @@
-﻿"Изменения: Спрайты":
-- changed-files:
-  - any-glob-to-any-file: '**/*.rsi/*.png'
+﻿":musical_note: Audio":
+  - changed-files:
+    - any-glob-to-any-file: "**/*.ogg"
 
-"Изменения: Локализация":
-- changed-files:
-  - any-glob-to-any-file: '**/*.ftl'
+":shark: C#":
+  - changed-files:
+    - any-glob-to-any-file: "**/*.cs"
 
-"Изменения: Карты":
-- changed-files:
-  - any-glob-to-any-file:
-    - 'Resources/Maps/**/*.yml'
-    - 'Resources/Prototypes/Maps/**/*.yml'
+":gear: Config":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.toml"
+      - "**/*.config"
+      - "*.json"
+      - ".github/*.yml"
+      - ".github/*.json"
+      - ".vscode/*.json"
+      - ".editorconfig"
 
-"Изменения: Интерфейс":
-- changed-files:
-  - any-glob-to-any-file: '**/*.xaml*'
+":book: Document":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.xml"
+      - "**/*.md"
 
-"Изменения: Шейдеры":
-- changed-files:
-  - any-glob-to-any-file: '**/*.swsl'
+":page_facing_up: Locale":
+  - changed-files:
+    - any-glob-to-any-file: 'Resources/Locale/**/*.ftl'
 
-"Изменения: Аудио":
-- changed-files:
-  - any-glob-to-any-file: '**/*.ogg'
+":world_map: Maps":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Resources/Maps/**/*.yml"
+      - "Resources/Prototypes/Maps/**/*.yml"
 
-"Изменения: Нет C#":
-- changed-files:
-  # Equiv to any-glob-to-all as long as this has one matcher. If ALL changed files are not C# files, then apply label.
-  - all-globs-to-all-files: "!**/*.cs"
+":art: Sprite":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.rsi/*.png"
+      - "**/*.rsi/*.json"
+
+":computer: UI":
+  - changed-files:
+    - any-glob-to-any-file: "**/*.xaml*"
+
+":baby_chick: YML":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.yml"
+    - all-globs-to-all-files:
+      - "!Resources/Maps/**/*.yml"
+      - "!Resources/Prototypes/Maps/**/*.yml"
+
+":wrench: GitHub Workflow":
+  - changed-files:
+    - any-glob-to-any-file: ".github/workflows/*.yml"
+
+":crystal_ball: Shader":
+  - changed-files:
+    - any-glob-to-any-file: '**/*.swsl'
+
+":no_entry: No C#":
+  - changed-files:
+    - all-globs-to-all-files: "!**/*.cs"
