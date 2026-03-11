@@ -30,6 +30,19 @@ using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 using Robust.Shared.Utility;
 using UsernameHelpers = Robust.Shared.AuthLib.UsernameHelpers;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using Content.Client.Resources;
+using Content.Shared.Arcade;
+using Content.Shared.Input;
+using Robust.Client.Graphics;
+using Robust.Client.ResourceManagement;
+using Robust.Client.UserInterface;
+using Robust.Client.UserInterface.Controls;
+using Robust.Client.UserInterface.CustomControls;
+using Robust.Shared.Utility;
+using static Robust.Client.UserInterface.Controls.BoxContainer;
 
 namespace Content.Client.MainMenu
 {
@@ -46,6 +59,11 @@ namespace Content.Client.MainMenu
         [Dependency] private readonly IResourceCache _resourceCache = default!;
         [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
         [Dependency] private readonly ILogManager _logManager = default!;
+        // Paradox-Start: Discord auth deny window dependencies
+        [Dependency] private readonly IClipboardManager _clipboard = default!;
+        [Dependency] private readonly IUriOpener _uri = default!;
+        private DefaultWindow? _discordAuthWindow;
+        // Paradox-End
 
         private ISawmill _sawmill = default!;
 
@@ -201,7 +219,20 @@ namespace Content.Client.MainMenu
 
         private void _onConnectFailed(object? _, NetConnectFailArgs args)
         {
-            _userInterfaceManager.Popup(Loc.GetString("main-menu-failed-to-connect",("reason", args.Reason)));
+            _sawmill.Warning($"Connect failed reason RAW: {args.Reason}");
+
+            if (TryParseDiscordAuthDeny(args.Reason, out var code, out var message))
+            {
+                ShowDiscordAuthDenyWindow(code, message);
+
+                _netManager.ConnectFailed -= _onConnectFailed;
+                _setConnectingState(false);
+                return;
+            }
+
+            _userInterfaceManager.Popup(
+                Loc.GetString("main-menu-failed-to-connect", ("reason", args.Reason)));
+
             _netManager.ConnectFailed -= _onConnectFailed;
             _setConnectingState(false);
         }
@@ -210,6 +241,128 @@ namespace Content.Client.MainMenu
         {
             _isConnecting = state;
             _mainMenuControl.DirectConnectButton.Disabled = state;
+        }
+
+        private bool TryParseDiscordAuthDeny(string reason, out int code, out string message)
+        {
+            code = 0;
+            message = string.Empty;
+
+            var index = reason.IndexOf("DISCORD_AUTH_DENY|");
+            if (index == -1)
+                return false;
+
+            var payload = reason.Substring(index);
+
+            var parts = payload.Split('|', 3);
+            if (parts.Length != 3)
+                return false;
+
+            if (!int.TryParse(parts[1], out code))
+                return false;
+
+            message = parts[2];
+            return true;
+        }
+
+        private void ShowDiscordAuthDenyWindow(int code, string message)
+        {
+            if (_discordAuthWindow is { Disposed: false })
+            {
+                _discordAuthWindow.OpenCentered();
+                return;
+            }
+
+            var vbox = new BoxContainer
+            {
+                Orientation = LayoutOrientation.Vertical,
+                SeparationOverride = 15,
+                Margin = new Thickness(15)
+            };
+
+            vbox.AddChild(new Label
+            {
+                Text = "❌ Требуется авторизация через Discord",
+                HorizontalAlignment = Control.HAlignment.Center
+            });
+
+            vbox.AddChild(new RichTextLabel
+            {
+                Text = message
+            });
+
+            var codeRow = new BoxContainer
+            {
+                Orientation = LayoutOrientation.Horizontal,
+                SeparationOverride = 10,
+                HorizontalAlignment = Control.HAlignment.Center
+            };
+
+            codeRow.AddChild(new Label { Text = "Код:" });
+
+            var codeLabel = new Label
+            {
+                Text = code.ToString(),
+                StyleClasses = { "LabelBig" }
+            };
+
+            codeRow.AddChild(codeLabel);
+
+            vbox.AddChild(codeRow);
+
+            var copyBtn = new Button
+            {
+                Text = "📋 Скопировать код"
+            };
+
+            copyBtn.OnPressed += _ =>
+            {
+                _clipboard.SetText(code.ToString());
+                _userInterfaceManager.Popup("Код скопирован!");
+            };
+
+            var channelBtn = new Button
+            {
+                Text = "➡️ Открыть канал авторизации"
+            };
+
+            channelBtn.OnPressed += _ =>
+                _uri.OpenUri("https://discord.com/channels/901772674865455115/1351213738774237184");
+
+            var discordBtn = new Button
+            {
+                Text = "➡️ Открыть Discord сервер"
+            };
+
+            discordBtn.OnPressed += _ =>
+                _uri.OpenUri("https://discord.com/invite/NY3KDNuH9r");
+
+            var closeBtn = new Button
+            {
+                Text = "Закрыть"
+            };
+
+            closeBtn.OnPressed += _ => _discordAuthWindow?.Close();
+
+            vbox.AddChild(copyBtn);
+            vbox.AddChild(channelBtn);
+            vbox.AddChild(discordBtn);
+            vbox.AddChild(closeBtn);
+
+            _discordAuthWindow = new DefaultWindow
+            {
+                Title = "Discord авторизация",
+                MinSize = new Vector2(420, 320)
+            };
+
+            _discordAuthWindow.OnClose += () =>
+            {
+                _discordAuthWindow = null;
+            };
+
+            _discordAuthWindow.Contents.AddChild(vbox);
+
+            _discordAuthWindow.OpenCentered();
         }
     }
 }

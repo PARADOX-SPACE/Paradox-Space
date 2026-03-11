@@ -354,27 +354,34 @@ namespace Content.Server.Connection
 
             // Paradox-Start: Check Auth for Discord ID
             // if (_cfg.GetCVar(CCVars.DiscordAuthEnable) && adminData == null)
-            if (_cfg.GetCVar(CCVars.DiscordAuthEnable)) // FOR Debug
+            // Paradox-Start: Check Auth for Discord ID + красивое окно с кодом
+            if (_cfg.GetCVar(CCVars.DiscordAuthEnable))
             {
                 var discordId = await _discordAuthManager.GetDiscordId(userId);
+
                 if (discordId != null)
                 {
-                    _sawmill.Info($"Discord ID for user {userId.ToString()}: {discordId}");
+                    _sawmill.Info($"Discord ID for user {userId}: {discordId}");
                 }
                 else
                 {
-                    _sawmill.Warning($"User {userId.ToString()} is not authorized through discord!!!");
-                    return (
-                        ConnectionDenyReason.DiscordAuth,
-                        $"You are not authorized through discord!\n\n"
-                        + "Присоединитесь к нашему дискорд серверу:\n"
-                        + "https://discord.com/invite/NY3KDNuH9r\n\n"
-                        + "И авторизуйтесь здесь:\n"
-                        + "https://discord.com/channels/901772674865455115/1351213738774237184\n\n"
-                        + $"Введите code командой в дискорд бота}\n"
-                        + "ВНИМАНИЕ: Не показывайте этот code никому, кроме администрации!",
-                        null
-                    );
+                    var code = _discordAuthManager.GenerateUserCode(userId);
+                    _sawmill.Warning($"Generated auth code for unauthorized user {userId}: {code}");
+
+                    // Отправляем код боту (чтобы он мог проверить команду от игрока)
+                    await _discordAuthManager.SendAuthCodeToBot(userId, code);
+
+                    var denyMessage = $"DISCORD_AUTH_DENY|{code}|" +
+                                      "Вы не авторизованы через Discord!\n\n" +
+                                      "Присоединитесь к нашему Discord-серверу:\n" +
+                                      "https://discord.com/invite/NY3KDNuH9r\n\n" +
+                                      "И авторизуйтесь в этом канале:\n" +
+                                      "https://discord.com/channels/901772674865455115/1351213738774237184\n\n" +
+                                      $"Ваш код авторизации: {code}\n\n" +
+                                      "Введите этот код командой боту в Discord.\n" +
+                                      "ВНИМАНИЕ: Не показывайте этот код никому, кроме администрации!";
+
+                    return (ConnectionDenyReason.DiscordAuth, denyMessage, null);
                 }
             }
             // Paradox-End
