@@ -1,11 +1,11 @@
 discord-auth-required-text = [color=red][b]⚠ Требуется Discord авторизация!!![/b][/color]
 
     Вы не авторизованы через Discord!
-    Присоединитесь к нашему Discord-серверу: [color=yellow]{inviteUrl}[/color]
-    И авторизуйтесь в этом канале: [color=yellow]{channelUrl}[/color]
-    Ваш код авторизации: [color=lime]{code}[/color]
+    Присоединитесь к нашему Discord-серверу: [color=yellow]{$inviteUrl}[/color]
+    И авторизуйтесь в этом канале: [color=yellow]{$channelUrl}[/color]
+    Ваш код авторизации: [color=lime]{$code}[/color]
     Введите этот код командой боту в Discord.
-    ВНИМАНИЕ: Не показывайте этот код никому, кроме администрации!
+    ![color=red] ВНИМАНИЕ: Не показывайте этот код никому, кроме администрации![/color]!
 discord-auth-code-label = Код:
 discord-auth-copy-code-button = © Скопировать код
 discord-auth-copy-code-popup = Код скопирован!

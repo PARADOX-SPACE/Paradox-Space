@@ -275,14 +275,9 @@ namespace Content.Client.MainMenu
             // Формируем текст через локаль: message = весь текст инструкции + ссылки + код
             var formattedMessage = Loc.GetString(
                 "discord-auth-required-text",
-                ("message",
-                    $"Вы не авторизованы через Discord!\n\n" +
-                    $"Присоединитесь к нашему Discord-серверу:\n[color=yellow]https://discord.com/invite/NY3KDNuH9r[/color]\n\n" +
-                    $"И авторизуйтесь в этом канале:\n[color=yellow]https://discord.com/channels/901772674865455115/1351213738774237184[/color]\n\n" +
-                    $"Ваш код авторизации: {code}\n\n" +
-                    "Введите этот код командой боту в Discord.\n" +
-                    "ВНИМАНИЕ: Не показывайте этот код никому, кроме администрации!"
-                )
+                ("inviteUrl", "https://discord.com/invite/NY3KDNuH9r"),
+                ("channelUrl", "https://discord.com/channels/901772674865455115/1351213738774237184"),
+                ("code", code)
             );
 
             var vbox = new BoxContainer
@@ -365,101 +360,5 @@ namespace Content.Client.MainMenu
             _discordAuthWindow.Contents.AddChild(vbox);
             _discordAuthWindow.OpenCentered();
         }
-
-        // private void ShowDiscordAuthDenyWindow(int code, string message)
-        // {
-        //     if (_discordAuthWindow is { Disposed: false })
-        //     {
-        //         _discordAuthWindow.OpenCentered();
-        //         return;
-        //     }
-        //
-        //     // Форматированный текст: код зелёный, ссылки жёлтые
-        //     var formattedMessage = $"[color=red][b]⚠ Требуется Discord авторизация[/b][/color]\n\n{message}";
-        //
-        //     var vbox = new BoxContainer
-        //     {
-        //         Orientation = LayoutOrientation.Vertical,
-        //         SeparationOverride = 15,
-        //         Margin = new Thickness(15)
-        //     };
-        //
-        //     // Основной текст
-        //     var rich = new RichTextLabel();
-        //     rich.SetMarkup(formattedMessage);
-        //     vbox.AddChild(rich);
-        //
-        //     var spacer = new Control { MinSize = new Vector2(0, 10) };
-        //     vbox.AddChild(spacer);
-        //
-        //     // Нижняя часть — код и кнопки
-        //     var bottomVBox = new BoxContainer
-        //     {
-        //         Orientation = LayoutOrientation.Vertical,
-        //         SeparationOverride = 10,
-        //         HorizontalAlignment = Control.HAlignment.Center
-        //     };
-        //
-        //     // Код авторизации в ярко-зелёном
-        //     var codeRow = new BoxContainer
-        //     {
-        //         Orientation = LayoutOrientation.Horizontal,
-        //         SeparationOverride = 10,
-        //         HorizontalAlignment = Control.HAlignment.Center
-        //     };
-        //     codeRow.AddChild(new Label { Text = "Код:" });
-        //
-        //     var codeLabel = new Label
-        //     {
-        //         Text = $"[color=lime]{code}[/color]",
-        //         StyleClasses = { "LabelBig" }
-        //     };
-        //     codeRow.AddChild(codeLabel);
-        //     bottomVBox.AddChild(codeRow);
-        //
-        //     // Кнопки с жёлтыми ссылками
-        //     var copyCodeBtn = new Button { Text = "📄 Копировать код" };
-        //     copyCodeBtn.OnPressed += _ =>
-        //     {
-        //         _clipboard.SetText(code.ToString());
-        //         _userInterfaceManager.Popup("Код скопирован!");
-        //     };
-        //
-        //     var copyAllBtn = new Button { Text = "📄 Копировать весь текст" };
-        //     copyAllBtn.OnPressed += _ =>
-        //     {
-        //         _clipboard.SetText(formattedMessage);
-        //         _userInterfaceManager.Popup("Текст скопирован!");
-        //     };
-        //
-        //     var channelBtn = new Button { Text = "[color=yellow]Открыть канал авторизации[/color]" };
-        //     channelBtn.OnPressed += _ => _uri.OpenUri("https://discord.com/channels/901772674865455115/1351213738774237184");
-        //
-        //     var discordBtn = new Button { Text = "[color=yellow]Открыть Discord сервер[/color]" };
-        //     discordBtn.OnPressed += _ => _uri.OpenUri("https://discord.com/invite/NY3KDNuH9r");
-        //
-        //     var closeBtn = new Button { Text = "Закрыть" };
-        //     closeBtn.OnPressed += _ => _discordAuthWindow?.Close();
-        //
-        //     bottomVBox.AddChild(copyCodeBtn);
-        //     bottomVBox.AddChild(copyAllBtn);
-        //     bottomVBox.AddChild(channelBtn);
-        //     bottomVBox.AddChild(discordBtn);
-        //     bottomVBox.AddChild(closeBtn);
-        //
-        //     vbox.AddChild(bottomVBox);
-        //
-        //     // Создаём окно
-        //     _discordAuthWindow = new DefaultWindow
-        //     {
-        //         Title = "Discord авторизация",
-        //         MinSize = new Vector2(450, 400)
-        //     };
-        //
-        //     _discordAuthWindow.OnClose += () => _discordAuthWindow = null;
-        //     _discordAuthWindow.Contents.AddChild(vbox);
-        //     _discordAuthWindow.OpenCentered();
-        // }
-
     }
 }
