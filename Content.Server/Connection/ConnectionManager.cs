@@ -354,23 +354,30 @@ namespace Content.Server.Connection
 
             // Paradox-Start: Check Auth for Discord ID
             // if (_cfg.GetCVar(CCVars.DiscordAuthEnable) && adminData == null)
-            // if (_cfg.GetCVar(CCVars.DiscordAuthEnable)) // FOR Debug
-            // {
-            //     var discordId = await _discordAuthManager.GetDiscordId(userId);
-            //     if (discordId != null)
-            //     {
-            //         _sawmill.Info($"Discord ID for user {userId.ToString()}: {discordId}");
-            //     }
-            //     else
-            //     {
-            //         _sawmill.Warning($"User {userId.ToString()} is not authorized through discord!!!");
-            //         var code = _discordAuthManager.GenerateUserCode(userId);
-            //         await _discordAuthManager.SendAuthCodeToBot(userId, code);
-            //         _pendingDiscordAuth.Add(userId);
-            //         return null; // Allow connection, but mark for UI
-            //     }
-            // }
-            // // Paradox-End
+            if (_cfg.GetCVar(CCVars.DiscordAuthEnable)) // FOR Debug
+            {
+                var discordId = await _discordAuthManager.GetDiscordId(userId);
+                if (discordId != null)
+                {
+                    _sawmill.Info($"Discord ID for user {userId.ToString()}: {discordId}");
+                }
+                else
+                {
+                    _sawmill.Warning($"User {userId.ToString()} is not authorized through discord!!!");
+                    return (
+                        ConnectionDenyReason.DiscordAuth,
+                        $"You are not authorized through discord!\n\n"
+                        + "Присоединитесь к нашему дискорд серверу:\n"
+                        + "https://discord.com/invite/NY3KDNuH9r\n\n"
+                        + "И авторизуйтесь здесь:\n"
+                        + "https://discord.com/channels/901772674865455115/1351213738774237184\n\n"
+                        + $"Введите code командой в дискорд бота}\n"
+                        + "ВНИМАНИЕ: Не показывайте этот code никому, кроме администрации!",
+                        null
+                    );
+                }
+            }
+            // Paradox-End
 
             if (_cfg.GetCVar(CCVars.PanicBunkerEnabled) && adminData == null)
             {
