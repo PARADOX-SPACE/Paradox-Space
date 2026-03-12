@@ -374,9 +374,9 @@ namespace Content.Server.Connection
                     var denyMessage = $"DISCORD_AUTH_DENY|{code}|" +
                                       "Вы не авторизованы через Discord!\n\n" +
                                       "Присоединитесь к нашему Discord-серверу:\n" +
-                                      "https://discord.com/invite/NY3KDNuH9r\n\n" +
+                                      "https://discord.gg/9MkcRcFCPb\n\n" +
                                       "И авторизуйтесь в этом канале:\n" +
-                                      "https://discord.com/channels/901772674865455115/1351213738774237184\n\n" +
+                                      "https://discord.com/channels/1475918847759356117/1481280582368493761\n\n" +
                                       $"Ваш код авторизации: {code}\n\n" +
                                       "Введите этот код командой боту в Discord.\n" +
                                       "ВНИМАНИЕ: Не показывайте этот код никому, кроме администрации!";
