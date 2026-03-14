@@ -181,7 +181,7 @@ namespace Content.Client.Launcher
                 _discordAuthWindow.OpenCentered();
                 return;
             }
-
+            _sawmill.Warning(_cfg.GetCVar(CCVars.InfoLinksDiscord));
             // Формируем текст через локаль: message = весь текст инструкции + ссылки + код
             var formattedMessage = Loc.GetString(
                 "discord-auth-required-text",
