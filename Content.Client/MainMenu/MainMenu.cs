@@ -18,22 +18,17 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+using System.Text.RegularExpressions;
 using Content.Client.MainMenu.UI;
-using Content.Client.Message;
 using Content.Client.UserInterface.Systems.EscapeMenu;
-using Content.Shared.CCVar;
-using Robust.Client.ResourceManagement;
-using Robust.Client.UserInterface.Controls;
-using Robust.Client.UserInterface.CustomControls;
-using Robust.Client.UserInterface;
 using Robust.Client;
+using Robust.Client.ResourceManagement;
+using Robust.Client.UserInterface;
+using Robust.Client.UserInterface.Controls;
+using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 using Robust.Shared.Utility;
-using Robust.Shared;
-using static Robust.Client.UserInterface.Controls.BoxContainer;
-using System.Numerics;
-using System.Text.RegularExpressions;
 using UsernameHelpers = Robust.Shared.AuthLib.UsernameHelpers;
 
 namespace Content.Client.MainMenu
@@ -51,13 +46,8 @@ namespace Content.Client.MainMenu
         [Dependency] private readonly IResourceCache _resourceCache = default!;
         [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
         [Dependency] private readonly ILogManager _logManager = default!;
-        // Paradox-Start: Discord auth deny window dependencies
-        [Dependency] private readonly IClipboardManager _clipboard = default!;
-        [Dependency] private readonly IUriOpener _uri = default!;
-        private DefaultWindow? _discordAuthWindow;
-        // ...existing code...
 
-        ISawmill _sawmill = default!;
+        private ISawmill _sawmill = default!;
 
         private MainMenuControl _mainMenuControl = default!;
         private bool _isConnecting;
@@ -211,21 +201,7 @@ namespace Content.Client.MainMenu
 
         private void _onConnectFailed(object? _, NetConnectFailArgs args)
         {
-            // Paradox-start: Discord auth
-            _sawmill.Warning($"Connect failed reason RAW: {args.Reason}");
-
-            if (TryParseDiscordAuthDeny(args.Reason, out var code, out var message))
-            {
-                ShowDiscordAuthDenyWindow(code, message);
-
-                _netManager.ConnectFailed -= _onConnectFailed;
-                _setConnectingState(false);
-                return;
-            }
-
-            _userInterfaceManager.Popup(
-                Loc.GetString("main-menu-failed-to-connect", ("reason", args.Reason)));
-            // Paradox-end
+            _userInterfaceManager.Popup(Loc.GetString("main-menu-failed-to-connect",("reason", args.Reason)));
             _netManager.ConnectFailed -= _onConnectFailed;
             _setConnectingState(false);
         }
@@ -235,136 +211,6 @@ namespace Content.Client.MainMenu
             _isConnecting = state;
             _mainMenuControl.DirectConnectButton.Disabled = state;
         }
-        // Paradox-Start: Discord auth
-        private bool TryParseDiscordAuthDeny(string reason, out int code, out string message)
-        {
-            code = 0;
-            message = string.Empty;
-
-            var index = reason.IndexOf("DISCORD_AUTH_DENY|");
-            if (index == -1)
-                return false;
-
-            var payload = reason.Substring(index);
-
-            var parts = payload.Split('|', 3);
-            if (parts.Length != 3)
-                return false;
-
-            if (!int.TryParse(parts[1], out code))
-                return false;
-
-            message = parts[2];
-            return true;
-        }
-
-        private void ShowDiscordAuthDenyWindow(int code, string message)
-        {
-            _sawmill.Info($"DISCORD WINDOW CODE: {code}");
-
-            if (_discordAuthWindow is { Disposed: false })
-            {
-                _discordAuthWindow.OpenCentered();
-                return;
-            }
-
-            // Формируем текст через локаль: message = весь текст инструкции + ссылки + код
-            var formattedMessage = Loc.GetString(
-                "discord-auth-required-text",
-                ("inviteUrl", _configurationManager.GetCVar(CCVars.InfoLinksDiscord)),
-                ("channelUrl", _configurationManager.GetCVar(CCVars.InfoLinksAuthChannelDiscord)),
-                ("code", code)
-            );
-
-            var vbox = new BoxContainer
-            {
-                Orientation = LayoutOrientation.Vertical,
-                SeparationOverride = 15,
-                Margin = new Thickness(15)
-            };
-
-            var rich = new RichTextLabel();
-            rich.SetMarkup(formattedMessage);
-            vbox.AddChild(rich);
-
-            var spacer = new Control { MinSize = new Vector2(0, 10) };
-            vbox.AddChild(spacer);
-
-            var bottomVBox = new BoxContainer
-            {
-                Orientation = LayoutOrientation.Vertical,
-                SeparationOverride = 10,
-                HorizontalAlignment = Control.HAlignment.Center
-            };
-
-            // Код авторизации
-            var codeRow = new BoxContainer
-            {
-                Orientation = LayoutOrientation.Horizontal,
-                SeparationOverride = 10,
-                HorizontalAlignment = Control.HAlignment.Center
-            };
-            codeRow.AddChild(new Label { Text = Loc.GetString("discord-auth-code-label") });
-
-            var codeLabel = new Label
-            {
-                Text = $"{code}", // обычный текст, без окрашивания
-                StyleClasses = { "LabelBig" }
-            };
-            codeRow.AddChild(codeLabel);
-            bottomVBox.AddChild(codeRow);
-
-            // Кнопки
-            var copyCodeBtn = new Button { Text = Loc.GetString("discord-auth-copy-code-button") };
-            copyCodeBtn.OnPressed += _ =>
-            {
-                _clipboard.SetText(code.ToString());
-                _userInterfaceManager.Popup(Loc.GetString("discord-auth-copy-code-popup"));
-            };
-
-            var copyAllBtn = new Button { Text = Loc.GetString("discord-auth-copy-all-button") };
-            copyAllBtn.OnPressed += _ =>
-            {
-                _clipboard.SetText(formattedMessage);
-                _userInterfaceManager.Popup(Loc.GetString("discord-auth-copy-all-popup"));
-            };
-
-            var channelBtn = new Button { Text = Loc.GetString("discord-auth-open-channel-button") };
-            channelBtn.OnPressed += _ => _uri.OpenUri(_configurationManager.GetCVar(CCVars.InfoLinksAuthChannelDiscord));
-
-            var discordBtn = new Button { Text = Loc.GetString("discord-auth-open-server-button") };
-            discordBtn.OnPressed += _ => _uri.OpenUri(_configurationManager.GetCVar(CCVars.InfoLinksDiscord));
-
-            var closeBtn = new Button { Text = Loc.GetString("discord-auth-close-button") };
-            closeBtn.OnPressed += _ => _discordAuthWindow?.Close();
-
-            bottomVBox.AddChild(copyCodeBtn);
-            bottomVBox.AddChild(copyAllBtn);
-            bottomVBox.AddChild(channelBtn);
-            bottomVBox.AddChild(discordBtn);
-            bottomVBox.AddChild(closeBtn);
-
-            vbox.AddChild(bottomVBox);
-
-            _discordAuthWindow = new DefaultWindow
-            {
-                Title = Loc.GetString("discord-auth-window-title"),
-                MinSize = new Vector2(450, 400)
-            };
-
-            var footer = new RichTextLabel
-            {
-                HorizontalAlignment = Control.HAlignment.Center
-            };
-            footer.SetMarkup(Loc.GetString("discord-auth-footer"));
-
-            vbox.AddChild(new Control { MinSize = new Vector2(0, 10) });
-            vbox.AddChild(footer);
-
-            _discordAuthWindow.OnClose += () => _discordAuthWindow = null;
-            _discordAuthWindow.Contents.AddChild(vbox);
-            _discordAuthWindow.OpenCentered();
-        }
-        // Paradox-End
     }
 }
+
